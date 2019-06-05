@@ -1,0 +1,158 @@
+---
+title: "Chart ggplot Code Collection"
+author: "Magdalena Blum-Oeste"
+date: "6/5/2019"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(scales)
+library(RColorBrewer)
+```
+
+## Introduction
+
+This is a collection of charts used in automated portfolio and company reports. 
+<br>
+### Graph values
+```{r}
+# Graphic elements
+text_size <- 14
+text_color <- "#3D3D3C"
+text_family <- "Source Sans Pro"
+axis_color <- "#3D3D3C"
+
+# Theme
+theme_barcharts <-function(base_size = text_size, text_family = "") {
+  theme(axis.line.x = element_line(colour = text_color,size = 0.5),
+        axis.line.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x = element_text(colour = text_color,size = text_size),
+        axis.text.y = element_text(colour = text_color,size = text_size),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(colour = text_color,size = text_size),
+        #legend.position=c(0.5,0),#legend.position = "none",
+        legend.position = "none",
+        legend.direction ="horizontal",
+        legend.text = element_text(size = text_size,colour = text_color),
+        legend.background = element_rect(fill = "transparent",colour = NA),
+        legend.key.size = unit(0.4,"cm"),
+        #legend.title=element_blank(),
+        legend.title = element_text(colour = text_color, size = text_size),
+        legend.key = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        plot.title = element_blank(),
+        text = element_text(family = text_family, size = text_size)
+  )
+}
+
+```
+
+## Bar charts
+### Stacked bar charts
+<br>
+
+#### CHART 1
+
+```{r echo = FALSE}
+C1 <- "Colombia"
+C2 <- "Mexico"
+C3 <- "Chile"
+C4 <- "Brazil"
+C5 <- "France"
+SB1 <- "SB1"
+SB2 <- "SB2"
+SB3 <- "SB3"
+SB4 <- "SB4"
+
+df1 <- tibble(Country = c(C1,C1,C1,C1,C2,C2,C2,C2,C3,C3,C3,C3,C4,C4,C4,C4,C5,C5,C5,C5),
+              SBond = c(SB1, SB2, SB3, SB4, SB1, SB2, SB3, SB4, SB1, SB2, SB3, SB4, SB1, SB2, SB3, SB4, SB1, SB2, SB3, SB4),
+              Rating = c(0.2,0.05,0.65,0.1,0.08,0.52,0.05,0.7,0.33,0.11,0.08,0.2,0.15,0.03,0,0,0.04,0.12,0,0))
+
+#knitr::kable(head(df1, 7), caption = "Dummy data")
+head(df1, 7)
+# chart values
+SB.Country.colors <- c()
+
+```
+
+```{r fig1, fig.height = 5, fig.width = 5, fig.align = "center"}
+# chart
+Chart1 <- ggplot(df1, aes(x = SBond, y = Rating, fill = Country)) +
+            geom_col(width = 0.7) + 
+            scale_fill_brewer(palette = "Set2") +
+            scale_y_continuous(labels = percent_format(accuracy = 1),
+                               limits = c(0, 1),
+                               expand = c(0, 0, 0, 0.06)) +
+            theme_barcharts() +
+            theme(axis.line.x = element_line(size = 0.8, linetype = "solid", color = text_color),
+                  axis.line.y = element_blank(),
+                  legend.position = "bottom",
+                  legend.justification = 0.5,
+                  legend.key.size = unit(0.5, "cm"),
+                  legend.text = element_text(margin = margin(r = 4, l = 1.5, unit = "pt")),
+                  legend.title = element_blank(),
+                  panel.border = element_blank(),
+                  panel.grid.major.y = element_line(colour = "#989898", size = 0.2),
+                  plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"))
+Chart1
+```
+
+#### CHART 2
+```{r echo = FALSE}
+df2 <- tibble(Rate = c("Most susceptible", "Susceptible", "Less susceptible", "Least susceptible", "Not rated"), 
+              Percentage = c(0.05, 0.235, 0.290, 0.025, 0.4))
+
+df2$Rate <- factor(df2$Rate,
+                   levels = c("Most susceptible", "Susceptible", "Less susceptible", "Least susceptible", "Not rated"))
+
+head(df2, 7)
+
+```
+
+```{r fig2, fig.height = 3, fig.width = 10, fig.align = "center"}
+# chart values
+Rate.Colors <- c("Not rated" = "#E0E1E0",   
+                 "Least susceptible" = "#53B38E",   
+                 "Less susceptible" = "#F6CB54",  
+                 "Susceptible" = "#E8924D",  
+                  "Most susceptible" = "#C2344C")   
+
+# chart
+Chart2 <- ggplot(df2, aes(x = "", y = Percentage, fill = fct_rev(Rate))) + 
+            geom_col() +
+            coord_flip() +
+            scale_fill_manual(values = Rate.Colors) +
+            scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1), expand = c(0, 0)) +
+            #scale_x_discrete(expand = c(0, 0)) + 
+            theme_void() +
+            theme(axis.text.x = element_text(family = text_family, size = text_size+5, colour = text_color),
+                  axis.title = element_blank(), 
+                  axis.line.y = element_line(size = 1, colour = text_color),
+                  legend.box.margin = unit(c(10, 0, 0, 0), "pt"),
+                  legend.key.height = unit(0.5, "cm"),
+                  legend.key.width = unit(0.5, "cm"),
+                  legend.position = "bottom",
+                  legend.text = element_text(family = text_family, size = text_size+2, colour = text_color,
+                                             margin = margin(l = 3, r = 10, unit = "pt")),
+                  legend.title = element_blank(),
+                  panel.grid.major = element_line(colour = "#989898", size = 0.2),
+                  panel.grid.minor = element_blank(),
+                  plot.margin = unit(c(1, 1, 1, 1), "cm"),
+                  plot.title = element_text(family = text_family, size = text_size+5, 
+                  colour = text_color, face = "bold", margin = margin(b = 15, unit = "pt"))) +
+            guides(fill = guide_legend(reverse = TRUE)) +
+            ggtitle("Susceptiblity Rating of S-Bond in your Portfolio")
+           
+
+Chart2
+
+```
+
+
+
