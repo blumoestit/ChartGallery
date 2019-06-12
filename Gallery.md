@@ -1,4 +1,4 @@
-Chart ggplot Code Collection
+MBO's Chart Collection
 ================
 Magdalena Blum-Oeste
 6/5/2019
