@@ -81,7 +81,7 @@ SB.Country.colors <- c()
 
 ```
 
-```{r fig1, fig.height = 5, fig.width = 5, fig.align = "center"}
+```{r fig1, fig.height = 5, fig.width = 5, fig.align = "center", echo = FALSE}
 # chart
 Chart1 <- ggplot(df1, aes(x = SBond, y = Rating, fill = Country)) +
             geom_col(width = 0.7) + 
@@ -95,7 +95,7 @@ Chart1 <- ggplot(df1, aes(x = SBond, y = Rating, fill = Country)) +
                   legend.position = "bottom",
                   legend.justification = 0.5,
                   legend.key.size = unit(0.5, "cm"),
-                  legend.text = element_text(margin = margin(r = 4, l = 1.5, unit = "pt")),
+                  legend.text = element_text(margin = margin(r = 5, l = 2, unit = "pt")),
                   legend.title = element_blank(),
                   panel.border = element_blank(),
                   panel.grid.major.y = element_line(colour = "#989898", size = 0.2),
@@ -115,7 +115,7 @@ head(df2, 7)
 
 ```
 
-```{r fig2, fig.height = 3, fig.width = 10, fig.align = "center"}
+```{r fig2, fig.height = 3, fig.width = 10, fig.align = "center", echo = FALSE}
 # chart values
 Rate.Colors <- c("Not rated" = "#E0E1E0",   
                  "Least susceptible" = "#53B38E",   
@@ -153,6 +153,162 @@ Chart2 <- ggplot(df2, aes(x = "", y = Percentage, fill = fct_rev(Rate))) +
 Chart2
 
 ```
+
+#### CHART 3
+
+```{r echo = FALSE}
+# data
+S1 <- "Power"
+S2 <- "Fossil Fuel"
+S3 <- "Automotive"
+S4 <- "Cement and Steel"
+S5 <- "Not relevant"
+  
+#w <- sample(1:100, 5, replace=TRUE) 
+#w <- round(w/sum(w), digits = 2)
+
+df3 <- tibble(Country = c(C1,C1,C1,C1,C1,C2,C2,C2,C2,C2,C3,C3,C3,C3,C3,C4,C4,C4,C4,C4,C5,C5,C5,C5,C5),
+              Technology = c(S1, S2, S3, S4, S5, S1, S2, S3, S4, S5, S1, S2, S3, S4, S5, S1, S2, S3, S4, S5, S1, S2, S3, S4, S5),
+              Sector.Share = c(0.21, 0.32, 0.02, 0.09, 0.36, 0.23, 0.19, 0.47, 0.08, 0.03, 0.23, 0.20, 0.10, 0.11, 0.36,
+                                0.15, 0.03, 0.37, 0.19, 0.26, 0.52, 0.06, 0.11, 0.26, 0.05))
+
+df3$Technology <- factor(df3$Technology, levels = c("Fossil Fuel", "Power", "Automotive", "Cement and Steel", "Not relevant"))
+
+head(df3, 7)
+```
+
+```{r fig3, fig.height = 5, fig.width = 5.5, fig.align = "center", echo = FALSE}
+# chart values
+shipping <- "#0F1e82"     
+material <- "#e46c00" 
+energy <- "#8B7E66"
+pow <- "#a63603"
+trans <- "#756bb1"
+othr <- "#9793c6"
+notrelevant <- "grey"
+
+fill_colors <- c("Cement and Steel" = pow, "Fossil Fuel" = energy, 
+                 "Power" = material, "Automotive" = trans, "Not relevant" = notrelevant)
+
+# chart
+Chart3 <- ggplot(df3, aes(x = Country, y =  Sector.Share, fill = fct_rev(Technology))) +
+  geom_col(width = 0.7) + 
+  #scale_fill_brewer(palette = "Set2") +
+  scale_fill_manual(values = fill_colors) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1), expand = c(0, 0, 0, 0.06)) +
+  theme_barcharts() +
+  theme(axis.line.x = element_line(size = 0.8, linetype = "solid", color = text_color),
+        axis.line.y = element_blank(),
+        legend.position = "bottom",
+        legend.justification = 0.5,
+        legend.key.size = unit(0.5, "cm"),
+        legend.text = element_text(margin = margin(r = 3, l = 3, unit = "pt")),
+        legend.title = element_blank(),
+        panel.border = element_blank(),
+        panel.grid.major.y = element_line(colour = "#989898", size = 0.2),
+        plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm")) +
+  guides(fill = guide_legend(nrow = 2, reverse = TRUE)) +
+  labs(y = "Share of Sector GDP")
+  
+Chart3
+
+```
+
+#### CHART 3
+
+```{r echo = FALSE}
+# data
+# data
+S1 <- "Power"
+S2 <- "Fossil Fuel"
+S3 <- "Automotive"
+TR <- "Renewables"
+TH <- "Hydro"
+TN <- "Nuclear"
+TGc <- "GasCap"
+TCc <- "CoalCap"
+TG <- "Gas"
+TC <- "Coal"
+TO <- "Oil"
+TEl <- "Electric"
+THyB <- "Hybrid"
+TICE <- "ICE"
+
+s.Y <- "2018"
+e.Y <- "2023"
+twod <- "SDS"
+
+df4 <- tibble(Sector = c(S1,S1,S1,S1,S1,S2,S2,S2,S3,S3,S3, S1,S1,S1,S1,S1,S2,S2,S2,S3,S3,S3, S1,S1,S1,S1,S1,S2,S2,S2,S3,S3,S3),
+              Technology = c(TR,TH,TN,TGc,TCc,TG,TO,TC,TEl,THyB,TICE,TR,TH,TN,TGc,TCc,TG,TO,TC,TEl,THyB,TICE,TR,TH,TN,TGc,TCc,TG,TO,TC,TEl,THyB,TICE),
+              Sector.Share = c(0.21, 0.32, 0.02, 0.09, 0.36, 0.2, 0.3, 0.5, 0.1, 0.05, 0.85,
+                               0.31, 0.12, 0.12, 0.19, 0.26, 0.3, 0.4, 0.3, 0.2, 0.1, 0.7,
+                               0.4, 0.1, 0.05, 0.29, 0.16, 0.1, 0.1, 0.8, 0.2, 0.2, 0.6),
+              Year = c(s.Y, s.Y, s.Y, s.Y, s.Y, s.Y, s.Y, s.Y, s.Y, s.Y, s.Y,
+                       e.Y, e.Y, e.Y, e.Y, e.Y, e.Y, e.Y, e.Y, e.Y, e.Y, e.Y,
+                       twod, twod, twod, twod, twod, twod, twod, twod, twod, twod, twod))
+
+df4$Sector <- factor(df4$Sector, levels = c("Fossil Fuel", "Power", "Automotive"))
+df4$Technology <- factor(df4$Technology, levels = c("Coal", "Oil", "Gas", "CoalCap", "GasCap", "Nuclear", "Hydro", "Renewables", "ICE", "Hybrid", "Electric"))
+
+head(df4, 7)
+```
+
+```{r fig4, fig.height = 4, fig.width = 11, fig.align = "center", echo = FALSE}
+# chart values
+## orangeish
+RenewablesColour <<- "#feedde"
+HydroColour <<- "#fdbe85"
+NuclearColour <<- "#fd8d3c"
+GasCapColour <<- "#e6550d"
+CoalCapColour <<- "#a63603"
+## purpleish
+ElectricColour <<- "#efedf5"
+HybridColour <<- "#bcbddc"
+ICEColour <<-"#756bb1"
+## goldish
+GasProdColour <<- "#D9DDD4" #"#F5F5F5" #D9DDD4
+OilProdColour <<- "#BEBCAE"       #"#BEA07B" #BEBCAE
+CoalProdColour <<-  "#8B7E66" # "#8C510A" #8B7E66
+
+
+fill_colors <- c("Renewables" = RenewablesColour, "Hydro" = HydroColour,"Nuclear" = NuclearColour,"GasCap" = GasCapColour,"CoalCap" = CoalCapColour,
+                  "Electric" = ElectricColour,"Hybrid" = HybridColour,"ICE" =ICEColour,
+                 "Gas" = GasProdColour,"Oil" = OilProdColour, "Coal" =  CoalProdColour)
+
+df4$Sector <- dplyr::recode(df4$Sector, "Fossil Fuel" = "Fossil Fuel Production", 
+                                        "Power" = "Power Capacity", 
+                                        "Automotive" = "Automotive Production")
+
+# chart
+Chart4 <- ggplot(df4, aes(x = Year, y =  Sector.Share, fill = fct_rev(Technology))) +
+  geom_col(width = 0.7) + 
+  facet_wrap(~Sector) +
+  #scale_fill_brewer(palette = "Set2") +
+  scale_fill_manual(values = fill_colors) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1), expand = c(0, 0, 0, 0)) +
+  theme_barcharts() +
+  theme(axis.line.x = element_line(size = 0.6, linetype = "solid", color = text_color),
+        axis.line.y = element_blank(),
+        legend.position = "bottom",
+        legend.justification = 0.5,
+        legend.key.size = unit(0.5, "cm"),
+        legend.text = element_text(margin = margin(r = 6, l = 2, unit = "pt")),
+        legend.title = element_blank(),
+        panel.border = element_blank(),
+        panel.grid.major.y = element_line(colour = "#989898", size = 0.2),
+        plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
+        strip.background  = element_blank(),
+        strip.text = element_text(family = text_family, face = "bold",
+                                  color = text_color, size = text_size,
+                                  margin = margin(0.5, 0, 0.6, 0, "cm"))) +
+  guides(fill = guide_legend(nrow = 1, reverse = TRUE)) +
+  labs(y = "Share of Sector Production")
+
+Chart4
+
+```
+
+
 
 
 
