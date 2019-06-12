@@ -2,7 +2,7 @@
 title: "Chart ggplot Code Collection"
 author: "Magdalena Blum-Oeste"
 date: "6/5/2019"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include = FALSE}
@@ -11,7 +11,7 @@ library(tidyverse)
 library(scales)
 library(RColorBrewer)
 ```
-
+ 
 ## Introduction
 
 This is a collection of charts used in automated portfolio and company reports. 
