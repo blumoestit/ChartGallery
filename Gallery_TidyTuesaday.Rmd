@@ -1,0 +1,118 @@
+---
+title: "#TidyTuesday Gallery by Magda Blum-Oeste"
+author: "Magdalena Blum-Oeste"
+date: "7/20/2019"
+output: github_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(scales)
+library(RColorBrewer)
+library(lubridate)
+library(ggridges)
+```
+ 
+## INTRODUCTION
+
+This is a collection of charts prepared using data sets from the #TidyTuesday initiative by R4DS
+
+<br>
+
+## GALLERY
+
+### Tidy Tuesday week 29 - R4DS member activity 
+The area chart inspired by Harro Cyranka (twitter: @harrocyranka)
+
+#### Graph values and theme
+```{r}
+# Graphic elements
+text_color1 <- "#d1d1d1"
+text_color2 <- "#d1d1d1"
+background1 <- "#22282b"
+grid_major <- "#575b5d"
+panel_border <- "#929495"
+
+# Colour palette
+        #22282b
+        #575b5d
+        #929495
+        #d1d1d1
+        #dfa2a6
+        #e2707d
+        #de2a56
+
+# Theme
+theme_mbo1 <- function (base_size = 12, base_family = "Source Sans Pro") {
+  theme_bw() +
+  theme(text = element_text(family = base_family,face = "plain", colour = "black",
+                            size = base_size, hjust = 0.5, vjust = 0.5, angle = 0, lineheight = 0.9),
+        axis.text = element_text(size = rel(0.8), colour = "white"),
+        strip.text = element_text(size = rel(0.8)),
+        axis.text.x = element_text(color = text_color1, hjust = 1),
+        axis.text.y = element_text(color = text_color1, hjust = 1),
+        axis.ticks = element_line(colour = "grey", size = 0.1),
+        axis.title.x = element_text(color = text_color1, face = "bold", size = rel(1.2), hjust = 1),
+        axis.title.y = element_text(color = text_color1, angle = 90, face = "bold", size = rel(1.2), hjust = 1),
+        axis.ticks.length = unit(0.1, "cm"),
+      
+        legend.position = "none",
+        
+        panel.background = element_rect(fill = background1, colour = NA),
+        panel.border = element_blank(), 
+        panel.grid.major = element_line(colour = grid_major),
+        panel.grid.minor = element_blank(), 
+        panel.spacing.x = unit(5, "pt"), 
+        panel.spacing.y = unit(20, "pt"),
+          
+        plot.background = element_rect(fill = background1, colour = "black"),
+        plot.subtitle = element_text(color = text_color1, size = rel(1)),
+        plot.title = element_text(color = text_color1, face = "bold", size = rel(1.2)),
+        
+        strip.background = element_rect(fill = background1, colour = NA),
+        strip.text.x = element_text(color = text_color1, face = "bold",  size = rel(1.2)),
+        strip.text.y = element_text(color = text_color1, angle = -90, face = "bold", size = rel(1.2))
+        
+  )
+}
+
+```
+
+<br>
+
+#### Data
+```{r}
+
+# Get the data!
+r4ds_members <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-07-16/r4ds_members.csv")
+
+knitr::kable(head(r4ds_members, 12), caption = "Original data frame")
+
+# Tidy the data for area chart
+TiTu29 <- r4ds_members %>% 
+  filter(date >= as.Date("2017-09-01")) %>% 
+  mutate(day = lubridate::day(date),
+         month = lubridate::month(date, label = TRUE),
+         year = lubridate::year(date),
+         month = factor(month),
+         year = factor(year)) %>% 
+ select(date, day, month, year, everything())
+```
+
+#### Area chart
+```{r fig1, fig.height = 5, fig.width = 15, fig.align = "center"}
+# Chart
+area_chart <- ggplot(TiTu29, aes(x = day, y = daily_active_members, fill = year)) +
+        geom_area(color = "#c6c6c6") +
+        facet_grid(year ~ month, scales = "free_x") +
+        scale_x_continuous(breaks = c(1, 10, 20, 30), expand = c(0, 0)) +
+        scale_y_continuous(breaks = seq(0, 250, 50), expand = c(0, 0)) +
+        scale_fill_manual(values = c("#78bc3f", "#404293", "#bc3f65")) +
+        labs(title = "Daily active members of the R4DS online learning community",
+             subtitle = "The community has started on 1st of September 2017",
+             x = "Day",
+             y = "Daily Active Members") +
+      theme_mbo1()
+area_chart
+```
