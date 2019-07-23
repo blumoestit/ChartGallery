@@ -18,7 +18,7 @@ GALLERY
 
 The area chart inspired by Harro Cyranka (twitter: @harrocyranka)
 
-#### Graph values and theme
+#### Graph values and themes
 
 ``` r
 # Graphic elements
@@ -43,7 +43,6 @@ theme_mbo1 <- function (base_size = 12, base_family = "Source Sans Pro") {
   theme(text = element_text(family = base_family,face = "plain", colour = "black",
                             size = base_size, hjust = 0.5, vjust = 0.5, angle = 0, lineheight = 0.9),
         axis.text = element_text(size = rel(0.8), colour = "white"),
-        strip.text = element_text(size = rel(0.8)),
         axis.text.x = element_text(color = text_color1, hjust = 1),
         axis.text.y = element_text(color = text_color1, hjust = 1),
         axis.ticks = element_line(colour = "grey", size = 0.1),
@@ -61,6 +60,7 @@ theme_mbo1 <- function (base_size = 12, base_family = "Source Sans Pro") {
         panel.spacing.y = unit(20, "pt"),
           
         plot.background = element_rect(fill = background1, colour = "black"),
+        plot.caption = element_text(color = text_color1, face = "italic", size = rel(0.7)), 
         plot.subtitle = element_text(color = text_color1, size = rel(1)),
         plot.title = element_text(color = text_color1, face = "bold", size = rel(1.2)),
         
@@ -108,22 +108,20 @@ knitr::kable(head(r4ds_members, 12), caption = "Original data frame")
 | 2017-09-06 |                410|            410|       0|                     223|                                 65|                      397|                                 268|                             130|                                0|                               0|                   52|                                   0.7143|                                         0|                        0.2857|                                0.9549|                                      0|                     0.0451|     0|                                   14|              3337|
 | 2017-09-07 |                419|            419|       0|                     240|                                 95|                      409|                                 278|                             254|                                0|                               0|                  122|                                   0.6755|                                         0|                        0.3245|                                0.9481|                                      0|                     0.0519|     0|                                   15|              3864|
 
-``` r
-# Tidy the data for area chart
-TiTu29 <- r4ds_members %>% 
-  filter(date >= as.Date("2017-09-01")) %>% 
-  mutate(day = lubridate::day(date),
-         month = lubridate::month(date, label = TRUE),
-         year = lubridate::year(date),
-         month = factor(month),
-         year = factor(year)) %>% 
- select(date, day, month, year, everything())
-```
-
 #### Area chart
 
 ``` r
-# Chart
+# Tidy the data for area chart
+  TiTu29 <- r4ds_members %>% 
+    filter(date >= as.Date("2017-09-01")) %>% 
+    mutate(day = lubridate::day(date),
+           month = lubridate::month(date, label = TRUE),
+           year = lubridate::year(date),
+           month = factor(month),
+           year = factor(year)) %>% 
+   select(date, day, month, year, everything())
+
+#Chart
 area_chart <- ggplot(TiTu29, aes(x = day, y = daily_active_members, fill = year)) +
         geom_area(color = "#c6c6c6") +
         facet_grid(year ~ month, scales = "free_x") +
@@ -135,7 +133,75 @@ area_chart <- ggplot(TiTu29, aes(x = day, y = daily_active_members, fill = year)
              x = "Day",
              y = "Daily Active Members") +
       theme_mbo1()
+
 area_chart
 ```
 
 <img src="Gallery_TidyTuesaday_files/figure-markdown_github/fig1-1.png" style="display: block; margin: auto;" />
+
+#### Calendar chart - in progress!!!!!
+
+Calender design inspired by <https://www.r-bloggers.com/making-calendar-with-ggplot-moon-phase-calendar-for-fun/>
+
+``` r
+# Tidy the data for calendar
+TiTu29_cal <- TiTu29
+
+  ## Create Month Week
+  TiTu29_cal$yearmonth <- as.yearmon(TiTu29_cal$date) # as.yearmon() from zoo package
+  TiTu29_cal$yearmonthf <- factor(TiTu29_cal$yearmonth)
+  
+  ## Names of week days in base R (whole words)
+  TiTu29_cal$weekday <- weekdays(as.Date(TiTu29_cal$date))
+  
+  ## Names of week days in lubridate (the letters)
+  TiTu29_cal$wday <- wday(TiTu29_cal$date, label = TRUE,
+                           abbr = TRUE,
+                           week_start = getOption("lubridate.week.start", 1))
+  
+  TiTu29_cal$weekNr <- week(TiTu29_cal$date)
+  
+  TiTu29_cal <- TiTu29_cal %>% group_by(month) %>% 
+    mutate(weekNr_month = dense_rank(weekNr), # dense_rank() from dplyr
+           month_full = lubridate::month(date, label = TRUE, abbr = FALSE)) %>%    
+    ungroup() %>% 
+    select(weekNr, weekNr_month, date, weekday, wday, day, month, year, everything())
+
+# Chart
+calendar_chart <- ggplot(TiTu29_cal, aes(x = wday, y = weekNr)) + 
+  geom_point(alpha = 1, aes(color = daily_active_members), size = 4) + 
+  #geom_text(aes(label = paste0(day, "\n", daily_active_members)), family = "Source Sans Pro", size = rel(1.5)) +
+  geom_text(aes(label = day), family = "Source Sans Pro", size = rel(1.8)) +
+  facet_grid(month_full ~ year, scales = "free") +  ## So that Each Line is a year!
+  scale_x_discrete() +
+  scale_y_reverse(expand = c(0, 0.5, 0, 0.5)) +
+  scale_colour_gradient2(low = "#bc3f65", high = "#78bc3f",
+                         mid = "skyblue", midpoint = 100) +
+  labs(title = "Daily active members of the R4DS online learning community", 
+       x = "", y = "#Week", color = "Number of daily active members:",
+       caption = "(c)Dr.M.Blum-Oeste") +
+      theme_mbo1() +
+  theme(axis.text.x = element_text(color = text_color1, size = rel(0.8), hjust = 0.5),
+        axis.text.y = element_text(color = text_color1, size = rel(1), hjust = 1),
+        axis.title.y = element_text(color = text_color1, angle = 90, face = "bold", 
+                                    size = rel(1), hjust = 1),
+        legend.position = c(0.725, -0.032), #"right", 
+        legend.direction = "horizontal",
+        legend.justification = 1,
+        legend.background = element_rect(fill = background1),
+        legend.key.width = unit(10, "mm"),
+        legend.key.height = unit(2.5, "mm"),
+        legend.title = element_text(family = "Source Sans Pro", size = rel(0.6), color = text_color1, vjust = 0.3),
+        legend.text = element_text(family = "Source Sans Pro", size = rel(0.6), color = text_color1,
+                                   margin = margin(1, 0, 0, 0, unit = "pt")),
+        plot.title = element_text(color = text_color1, face = "bold", size = rel(1), hjust = 0.5),
+        panel.grid.major.x = element_line(colour = grid_major),
+        panel.grid.major.y = element_line(colour = grid_major), 
+        strip.text.x = element_text(color = text_color1, face = "bold",  size = rel(1.2)),
+        strip.text.y = element_text(color = text_color1, angle = -90, face = "bold", size = rel(1.2)))
+      
+
+calendar_chart
+```
+
+<img src="Gallery_TidyTuesaday_files/figure-markdown_github/fig2-1.png" style="display: block; margin: auto;" />
